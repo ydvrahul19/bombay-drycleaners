@@ -1,164 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 
-// ─── LOGO (SVG-based, number updated to +91 9493995503) ────────────────────────
-const LOGO_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0a5f55"/>
-      <stop offset="100%" style="stop-color:#2eaa96"/>
-    </linearGradient>
-  </defs>
-  <rect width="200" height="200" rx="28" fill="url(#bg)"/>
-  <text x="100" y="62" font-family="Georgia,serif" font-size="52" font-weight="bold" fill="white" text-anchor="middle">BD</text>
-  <text x="100" y="90" font-family="Georgia,serif" font-size="13" fill="rgba(255,255,255,0.85)" text-anchor="middle" letter-spacing="2">BOMBAY</text>
-  <text x="100" y="108" font-family="Georgia,serif" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle" letter-spacing="2">DRYCLEANERS</text>
-  <line x1="30" y1="118" x2="170" y2="118" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-  <text x="100" y="134" font-family="Arial,sans-serif" font-size="9.5" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="bold">+91 9493995503</text>
-  <text x="100" y="150" font-family="Arial,sans-serif" font-size="7.5" fill="rgba(255,255,255,0.6)" text-anchor="middle">SINCE 2001</text>
-</svg>`)}`;
-
-// ─── CONSTANTS ─────────────────────────────────────────────────────────────────
 const PHONE = "9493995503";
 const WHATSAPP_LINK = `https://wa.me/91${PHONE}`;
 const CALL_LINK = `tel:+91${PHONE}`;
 const MAPS_LINK = "https://maps.app.goo.gl/Pd5rqBa3Z9yGQtn29";
+const LOGO = "/assets/logo.png";
 
-// ─── TOP INFO BAR (like Fit & Shine reference) ─────────────────────────────────
-function TopBar() {
-  return (
-    <div style={{
-      background: "#f5f0e8", borderBottom: "1px solid #e0d8c8",
-      padding: "7px 5%", display: "flex", alignItems: "center",
-      justifyContent: "space-between", flexWrap: "wrap", gap: 8,
-      fontSize: 13, fontFamily: "'DM Sans',sans-serif", color: "#555",
-      position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "#0a5f55" }}>
-        <span style={{ color: "#e74c3c" }}>📞</span>
-        <a href={CALL_LINK} style={{ color: "#0a5f55", textDecoration: "none", fontWeight: 700 }}>+91 {PHONE}</a>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#555", textAlign: "center", fontSize: 12 }}>
-        <span>📍</span>
-        <span style={{ fontWeight: 500 }}>Hyderabad, Telangana</span>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#555", fontSize: 12 }}>
-        <span>🕐</span>
-        <span>Mon–Sat: 8:00 AM – 8:00 PM</span>
-      </div>
-    </div>
-  );
-}
+function serviceImg(filename, fallback) { return { src: `/assets/services/${filename}`, fallback }; }
+function heroImg(filename, fallback) { return { src: `/assets/hero/${filename}`, fallback }; }
 
-// ─── SERVICES DATA (updated, no shoe cleaning in main) ─────────────────────────
 const SERVICES = [
-  {
-    id: "women",
-    icon: "👗",
-    title: "Designer Wear & Women's Ethnic",
-    color: "#0a5f55",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80",
-    items: [
-      "Wedding gowns & bridal lehengas",
-      "Designer salwar suits & anarkalis",
-      "Embroidered & zardozi work garments",
-      "Delicate lace & chiffon wear",
-    ],
-  },
-  {
-    id: "saree",
-    icon: "🥻",
-    title: "Saree & Silk Care",
-    color: "#1a8a7a",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80",
-    items: [
-      "Banarasi, Kanjivaram & pure silk sarees",
-      "Wool, georgette & chiffon sarees",
-      "Fabric-specific gentle dry cleaning",
-      "Colour-safe stain removal",
-    ],
-  },
-  {
-    id: "mensformal",
-    icon: "🤵",
-    title: "Sherwanis & Men's Formal",
-    color: "#0e7a6d",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
-    items: [
-      "Wedding sherwanis & achkans",
-      "Bandhgala & jodhpuri suits",
-      "Blazers, tuxedos & formal coats",
-      "Embroidered kurtas & ethnic wear",
-    ],
-  },
-  {
-    id: "everyday",
-    icon: "👔",
-    title: "Everyday Garments",
-    color: "#2eaa96",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80",
-    items: [
-      "Business suits, blazers & jackets",
-      "Dresses, skirts & formal trousers",
-      "Shirts, sarees & casual wear",
-      "Steam pressing & crisp finishing",
-    ],
-  },
-  {
-    id: "curtains",
-    icon: "🏠",
-    title: "Curtains & Drapes",
-    color: "#0a5f55",
-    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80",
-    items: [
-      "All fabric curtains & drapes",
-      "Sheer, velvet & blackout curtains",
-      "Careful hanging & folding after clean",
-      "Odour & dust removal treatment",
-    ],
-  },
-  {
-    id: "sofa",
-    icon: "🛋️",
-    title: "Sofa Covers & Cushions",
-    color: "#1a8a7a",
-    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
-    items: [
-      "Sofa cover & slipcover cleaning",
-      "Cushion cover & throw pillow cleaning",
-      "Fabric & leather sofa accessories",
-      "Stain removal & deodorising",
-    ],
-  },
-  {
-    id: "carpet",
-    icon: "🧹",
-    title: "Carpet & Rug Cleaning",
-    color: "#0e7a6d",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600&q=80",
-    items: [
-      "Persian, wool & synthetic carpets",
-      "Area rugs & door mats",
-      "Deep stain & odour extraction",
-      "Colour restoration treatment",
-    ],
-  },
-  {
-    id: "misc",
-    icon: "✨",
-    title: "Miscellaneous & Other Services",
-    color: "#2eaa96",
-    image: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=600&q=80",
-    items: [
-      "Shoe & footwear cleaning (leather, suede, sneakers)",
-      "Bags, purses & leather accessories",
-      "Blankets, quilts & bed covers",
-      "Leather jackets & specialty garments",
-    ],
-  },
+  { id: "women", icon: "👗", title: "Designer Wear & Women's Ethnic", color: "#0a5f55", ...serviceImg("women-ethnic.jpg", "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80"), items: ["Wedding gowns & bridal lehengas", "Designer salwar suits & anarkalis", "Embroidered & zardozi work garments", "Delicate lace & chiffon wear"] },
+  { id: "saree", icon: "🥻", title: "Saree & Silk Care", color: "#1a8a7a", ...serviceImg("saree-silk.jpg", "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80"), items: ["Banarasi, Kanjivaram & pure silk sarees", "Wool, georgette & chiffon sarees", "Fabric-specific gentle dry cleaning", "Colour-safe stain removal"] },
+  { id: "mensformal", icon: "🤵", title: "Sherwanis & Men's Formal", color: "#0e7a6d", ...serviceImg("sherwanis-mens.jpg", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80"), items: ["Wedding sherwanis & achkans", "Bandhgala & jodhpuri suits", "Blazers, tuxedos & formal coats", "Embroidered kurtas & ethnic wear"] },
+  { id: "everyday", icon: "👔", title: "Everyday Garments", color: "#2eaa96", ...serviceImg("everyday-garments.jpg", "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80"), items: ["Business suits, blazers & jackets", "Dresses, skirts & formal trousers", "Shirts, sarees & casual wear", "Steam pressing & crisp finishing"] },
+  { id: "curtains", icon: "🏠", title: "Curtains & Drapes", color: "#0a5f55", ...serviceImg("curtains-drapes.jpg", "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80"), items: ["All fabric curtains & drapes", "Sheer, velvet & blackout curtains", "Careful hanging & folding after clean", "Odour & dust removal treatment"] },
+  { id: "sofa", icon: "🛋️", title: "Sofa Covers & Cushions", color: "#1a8a7a", ...serviceImg("sofa-cushions.jpg", "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80"), items: ["Sofa cover & slipcover cleaning", "Cushion cover & throw pillow cleaning", "Fabric & leather sofa accessories", "Stain removal & deodorising"] },
+  { id: "carpet", icon: "🧹", title: "Carpet & Rug Cleaning", color: "#0e7a6d", ...serviceImg("carpet-rug.jpg", "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600&q=80"), items: ["Persian, wool & synthetic carpets", "Area rugs & door mats", "Deep stain & odour extraction", "Colour restoration treatment"] },
+  { id: "misc", icon: "✨", title: "Miscellaneous & Other Services", color: "#2eaa96", ...serviceImg("misc-services.jpg", "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=600&q=80"), items: ["Shoe & footwear cleaning (leather, suede, sneakers)", "Bags, purses & leather accessories", "Blankets, quilts & bed covers", "Leather jackets & specialty garments"] },
 ];
 
-// ─── UPDATED REVIEWS ───────────────────────────────────────────────────────────
+const HERO_SLIDES = [
+  { ...heroImg("hero-1.jpg", "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1400&q=80"), caption: "Premium Dry Cleaning", sub: "Trusted since 2001" },
+  { ...heroImg("hero-2.jpg", "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1400&q=80"), caption: "Sarees & Silk Care", sub: "Fabric-specific expertise" },
+  { ...heroImg("hero-3.jpg", "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1400&q=80"), caption: "Designer & Bridal Wear", sub: "Wedding gowns · Lehengas · Sherwanis" },
+  { ...heroImg("hero-4.jpg", "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1400&q=80"), caption: "Household Textiles", sub: "Curtains · Carpets · Sofa Covers" },
+  { ...heroImg("hero-5.jpg", "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=1400&q=80"), caption: "Steam Press & Finishing", sub: "Crisp, fresh, ready to wear" },
+];
+
 const REVIEWS = [
   { name: "Ravi Kumar", rating: 5, text: "Very professional and good cleaning. I gave my 2 sets of white kurta payjama for cleaning during this Diwali. Clothes were returned in sparkling white condition. Price is slightly high ie Rs 60 for each cloth. But worth it.", avatar: "RK", date: "2 weeks ago" },
   { name: "Meena Iyer", rating: 5, text: "Best in service, wonderful experience and fast track work. Excellent workshop and good hospitality.", avatar: "MI", date: "1 month ago" },
@@ -169,36 +39,60 @@ const REVIEWS = [
   { name: "Deepa Nair", rating: 5, text: "Good service helped in the last moment. They saved my event outfit!", avatar: "DN", date: "3 days ago" },
 ];
 
-const HERO_SLIDES = [
-  { url: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1400&q=80", caption: "Premium Dry Cleaning", sub: "Trusted since 2001" },
-  { url: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1400&q=80", caption: "Sarees & Silk Care", sub: "Fabric-specific expertise" },
-  { url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1400&q=80", caption: "Designer & Bridal Wear", sub: "Wedding gowns · Lehengas · Sherwanis" },
-  { url: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1400&q=80", caption: "Household Textiles", sub: "Curtains · Carpets · Sofa Covers" },
-  { url: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=1400&q=80", caption: "Steam Press & Finishing", sub: "Crisp, fresh, ready to wear" },
-];
+// Dynamic counter hook
+function useCounter(target, duration = 2000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  useEffect(() => {
+    if (!inView) return;
+    const numeric = parseInt(target.replace(/\D/g, ""), 10);
+    const step = numeric / (duration / 16);
+    let cur = 0;
+    const timer = setInterval(() => {
+      cur += step;
+      if (cur >= numeric) { setCount(numeric); clearInterval(timer); }
+      else setCount(Math.floor(cur));
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, target, duration]);
+  const isKPlus = target.includes("K+");
+  const isPlus = target.includes("+") && !isKPlus;
+  const isPercent = target.includes("%");
+  const display = isKPlus ? `${Math.floor(count / 1000)}K+` : isPercent ? `${count}%` : isPlus ? `${count}+` : `${count}`;
+  return { ref, display };
+}
 
-// ─── FLOATING BUTTONS ──────────────────────────────────────────────────────────
-function FloatingButtons() {
+function StatItem({ value, label }) {
+  const { ref, display } = useCounter(value);
   return (
-    <div style={{ position: "fixed", bottom: 28, right: 22, zIndex: 1000, display: "flex", flexDirection: "column", gap: 14 }}>
-      <motion.a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-        whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.95 }}
-        style={{ width: 56, height: 56, borderRadius: "50%", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(37,211,102,0.5)", textDecoration: "none" }}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </motion.a>
-      <motion.a href={CALL_LINK} whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.95 }}
-        style={{ width: 56, height: 56, borderRadius: "50%", background: "#0a5f55", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(10,95,85,0.5)", textDecoration: "none" }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-        </svg>
-      </motion.a>
+    <div ref={ref} style={{ textAlign: "center" }}>
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
+        style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(20px,3vw,28px)", fontWeight: 700, color: "#7eecd9" }}>
+        {display}
+      </motion.div>
+      <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(10px,1.5vw,12px)", color: "rgba(255,255,255,0.65)", letterSpacing: 1 }}>{label}</div>
     </div>
   );
 }
 
-// ─── NAVBAR ────────────────────────────────────────────────────────────────────
+function TopBar() {
+  return (
+    <div style={{ background: "#f5f0e8", borderBottom: "1px solid #e0d8c8", padding: "7px 5%", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 13, fontFamily: "'DM Sans',sans-serif", color: "#555", position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "#0a5f55" }}>
+        <span style={{ color: "#e74c3c" }}>📞</span>
+        <a href={CALL_LINK} style={{ color: "#0a5f55", textDecoration: "none", fontWeight: 700 }}>+91 {PHONE}</a>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#555", textAlign: "center", fontSize: 12 }}>
+        <span>📍</span><span style={{ fontWeight: 500 }}>Hyderabad, Telangana</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#555", fontSize: 12 }}>
+        <span>🕐</span><span>Mon–Sat: 8:00 AM – 8:00 PM</span>
+      </div>
+    </div>
+  );
+}
+
 function Navbar({ activePage, setActivePage }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -210,55 +104,28 @@ function Navbar({ activePage, setActivePage }) {
   const links = ["Home", "Services", "About", "Reviews", "Contact"];
   return (
     <motion.nav initial={{ y: -80 }} animate={{ y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}
-      style={{
-        position: "fixed", top: 36, left: 0, right: 0, zIndex: 900,
-        background: scrolled ? "rgba(255,255,255,0.97)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "none",
-        transition: "all 0.3s ease", padding: "0 5%",
-      }}>
+      style={{ position: "fixed", top: 36, left: 0, right: 0, zIndex: 900, background: scrolled ? "rgba(255,255,255,0.97)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "none", transition: "all 0.3s ease", padding: "0 5%" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 68 }}>
         <button onClick={() => { setActivePage("Home"); setMenuOpen(false); }}
           style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", padding: 0, gap: 10 }}>
-          <img src={LOGO_SVG} alt="Bombay Drycleaners"
-            style={{ height: 50, width: 50, objectFit: "contain", borderRadius: 10, transition: "all 0.3s" }} />
+          <img src={LOGO} alt="Bombay Drycleaners Logo" style={{ height: 52, width: 52, objectFit: "contain", borderRadius: 10, transition: "all 0.3s" }} />
           <div style={{ textAlign: "left" }}>
             <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 16, color: scrolled ? "#0a5f55" : "#fff", lineHeight: 1.1 }}>BOMBAY</div>
             <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 400, fontSize: 9, color: scrolled ? "#2eaa96" : "#a8e6de", letterSpacing: 3 }}>DRYCLEANERS</div>
           </div>
         </button>
-
-        {/* Desktop Nav */}
         <div className="desktop-nav" style={{ display: "flex", gap: 28, alignItems: "center" }}>
           {links.map((l) => (
             <button key={l} onClick={() => setActivePage(l)}
-              style={{
-                background: "none", border: "none", cursor: "pointer",
-                fontFamily: "'DM Sans',sans-serif", fontWeight: activePage === l ? 700 : 500,
-                fontSize: 14, letterSpacing: 0.5,
-                color: activePage === l ? "#2eaa96" : (scrolled ? "#333" : "rgba(255,255,255,0.9)"),
-                borderBottom: activePage === l ? "2px solid #2eaa96" : "2px solid transparent",
-                paddingBottom: 2, transition: "all 0.2s",
-              }}>{l}</button>
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: activePage === l ? 700 : 500, fontSize: 14, letterSpacing: 0.5, color: activePage === l ? "#2eaa96" : (scrolled ? "#333" : "rgba(255,255,255,0.9)"), borderBottom: activePage === l ? "2px solid #2eaa96" : "2px solid transparent", paddingBottom: 2, transition: "all 0.2s" }}>{l}</button>
           ))}
-          <a href={CALL_LINK} style={{
-            background: "linear-gradient(135deg,#0a5f55,#2eaa96)", color: "#fff",
-            padding: "9px 22px", borderRadius: 24, fontFamily: "'DM Sans',sans-serif",
-            fontWeight: 600, fontSize: 13, textDecoration: "none",
-            boxShadow: "0 4px 12px rgba(10,95,85,0.35)",
-          }}>📞 Call Now</a>
+          <a href={CALL_LINK} style={{ background: "linear-gradient(135deg,#0a5f55,#2eaa96)", color: "#fff", padding: "9px 22px", borderRadius: 24, fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 13, textDecoration: "none", boxShadow: "0 4px 12px rgba(10,95,85,0.35)" }}>📞 Call Now</a>
         </div>
-
-        {/* Mobile hamburger */}
         <button className="mobile-menu-btn" onClick={() => setMenuOpen(!menuOpen)}
           style={{ display: "none", background: "none", border: "none", cursor: "pointer", flexDirection: "column", gap: 5, padding: 4 }}>
-          {[0,1,2].map(i => (
-            <div key={i} style={{ width: 24, height: 2, background: scrolled ? "#0a5f55" : "#fff", borderRadius: 2, transition: "all 0.3s" }} />
-          ))}
+          {[0, 1, 2].map(i => <div key={i} style={{ width: 24, height: 2, background: scrolled ? "#0a5f55" : "#fff", borderRadius: 2, transition: "all 0.3s" }} />)}
         </button>
       </div>
-
-      {/* Mobile dropdown */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
@@ -271,119 +138,91 @@ function Navbar({ activePage, setActivePage }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn { display: flex !important; }
-        }
-      `}</style>
+      <style>{`@media (max-width: 768px) { .desktop-nav { display: none !important; } .mobile-menu-btn { display: flex !important; } }`}</style>
     </motion.nav>
   );
 }
 
-// ─── HERO ──────────────────────────────────────────────────────────────────────
 function HeroSection({ setActivePage }) {
   const [current, setCurrent] = useState(0);
+  const [bgSrcs, setBgSrcs] = useState(HERO_SLIDES.map(s => s.src));
   useEffect(() => {
     const t = setInterval(() => setCurrent((c) => (c + 1) % HERO_SLIDES.length), 4500);
     return () => clearInterval(t);
   }, []);
+  const handleBgError = (i) => setBgSrcs(prev => { const n = [...prev]; n[i] = HERO_SLIDES[i].fallback; return n; });
   return (
     <section style={{ position: "relative", height: "100vh", minHeight: 560, overflow: "hidden" }}>
       {HERO_SLIDES.map((s, i) => (
-        <motion.div key={i}
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: i === current ? 1 : 0, scale: i === current ? 1 : 1.05 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          style={{ position: "absolute", inset: 0, backgroundImage: `url(${s.url})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+        <motion.div key={i} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: i === current ? 1 : 0, scale: i === current ? 1 : 1.05 }} transition={{ duration: 1, ease: "easeInOut" }} style={{ position: "absolute", inset: 0 }}>
+          <img src={bgSrcs[i]} alt="" style={{ display: "none" }} onError={() => handleBgError(i)} />
+          <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${bgSrcs[i]})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+        </motion.div>
       ))}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(5,40,36,0.6) 0%, rgba(5,40,36,0.75) 100%)" }} />
-
       <div style={{ position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 20px" }}>
-        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
-          style={{ marginBottom: 20 }}>
-          <img src={LOGO_SVG} alt="Bombay Drycleaners"
-            style={{ width: 100, height: 100, objectFit: "contain", borderRadius: 18, background: "rgba(255,255,255,0.1)", padding: 8, backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.2)" }} />
+        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }} style={{ marginBottom: 20 }}>
+          <img src={LOGO} alt="Bombay Drycleaners" style={{ width: 110, height: 110, objectFit: "contain", borderRadius: 20, background: "rgba(255,255,255,0.12)", padding: 8, backdropFilter: "blur(8px)", border: "1.5px solid rgba(255,255,255,0.25)" }} />
         </motion.div>
-
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.7 }}
           style={{ background: "rgba(46,170,150,0.2)", border: "1px solid rgba(46,170,150,0.4)", borderRadius: 30, padding: "6px 18px", marginBottom: 18, fontFamily: "'DM Sans',sans-serif", color: "#7eecd9", fontSize: 12, letterSpacing: 2 }}>
           ✦ TRUSTED SINCE 2001 ✦
         </motion.div>
-
         <AnimatePresence mode="wait">
-          <motion.h1 key={current}
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.6 }}
+          <motion.h1 key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.6 }}
             style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(2rem,6vw,4.5rem)", color: "#fff", fontWeight: 700, lineHeight: 1.15, margin: "0 0 12px", maxWidth: 800 }}>
             {HERO_SLIDES[current].caption}
           </motion.h1>
         </AnimatePresence>
         <AnimatePresence mode="wait">
-          <motion.p key={`sub-${current}`}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+          <motion.p key={`sub-${current}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
             style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(15px,2.5vw,18px)", margin: "0 0 36px" }}>
             {HERO_SLIDES[current].sub}
           </motion.p>
         </AnimatePresence>
-
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-            onClick={() => setActivePage("Services")}
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} onClick={() => setActivePage("Services")}
             style={{ background: "linear-gradient(135deg,#2eaa96,#0a5f55)", color: "#fff", border: "none", padding: "14px 30px", borderRadius: 30, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: "clamp(14px,2vw,16px)" }}>
             View Services
           </motion.button>
-          <motion.a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+          <motion.a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
             style={{ background: "rgba(255,255,255,0.15)", color: "#fff", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.3)", padding: "14px 30px", borderRadius: 30, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: "clamp(14px,2vw,16px)" }}>
             WhatsApp Us
           </motion.a>
         </div>
-
         <div style={{ position: "absolute", bottom: 80, display: "flex", gap: 8 }}>
-          {HERO_SLIDES.map((_, i) => (
-            <button key={i} onClick={() => setCurrent(i)}
-              style={{ width: i === current ? 28 : 8, height: 8, borderRadius: 4, background: i === current ? "#2eaa96" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.3s" }} />
-          ))}
+          {HERO_SLIDES.map((_, i) => <button key={i} onClick={() => setCurrent(i)} style={{ width: i === current ? 28 : 8, height: 8, borderRadius: 4, background: i === current ? "#2eaa96" : "rgba(255,255,255,0.4)", border: "none", cursor: "pointer", transition: "all 0.3s" }} />)}
         </div>
       </div>
-
-      {/* Stats bar */}
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.6 }}
-        style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(10,95,85,0.95)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", gap: "clamp(16px,4vw,70px)", padding: "18px 5%", flexWrap: "wrap" }}>
-        {[["23+", "Years Experience"], ["10K+", "Happy Customers"], ["25+", "Fabric Types"], ["100%", "Satisfaction"]].map(([n, l]) => (
-          <div key={l} style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(18px,3vw,26px)", fontWeight: 700, color: "#7eecd9" }}>{n}</div>
-            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(10px,1.5vw,12px)", color: "rgba(255,255,255,0.65)", letterSpacing: 1 }}>{l}</div>
-          </div>
-        ))}
-      </motion.div>
+      {/* DYNAMIC stats bar */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(10,95,85,0.95)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", gap: "clamp(16px,4vw,70px)", padding: "18px 5%", flexWrap: "wrap" }}>
+        <StatItem value="23+" label="Years Experience" />
+        <StatItem value="10000+" label="Happy Customers" />
+        <StatItem value="25+" label="Fabric Types" />
+        <StatItem value="100%" label="Satisfaction" />
+      </div>
     </section>
   );
 }
 
-// ─── SERVICE CARD ──────────────────────────────────────────────────────────────
 function ServiceCard({ service, i }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [imgSrc, setImgSrc] = useState(service.src);
   return (
     <motion.div ref={ref}
-      initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: i * 0.07 }}
+      initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: (i % 4) * 0.07 }}
       whileHover={{ y: -6, boxShadow: "0 20px 50px rgba(10,95,85,0.18)" }}
       style={{ background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.07)", transition: "box-shadow 0.3s" }}>
       <div style={{ height: 185, overflow: "hidden", position: "relative" }}>
-        <img src={service.image} alt={service.title}
+        <img src={imgSrc} alt={service.title} onError={() => setImgSrc(service.fallback)}
           style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.45s ease" }}
-          onMouseOver={(e) => (e.target.style.transform = "scale(1.07)")}
-          onMouseOut={(e) => (e.target.style.transform = "scale(1)")} />
-        <div style={{ position: "absolute", top: 12, left: 12, background: service.color, color: "#fff", borderRadius: 10, padding: "4px 12px", fontFamily: "'DM Sans',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: 0.5 }}>
-          {service.icon}
-        </div>
+          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+          onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")} />
+        <div style={{ position: "absolute", top: 12, left: 12, background: service.color, color: "#fff", borderRadius: 10, padding: "4px 12px", fontFamily: "'DM Sans',sans-serif", fontSize: 11, fontWeight: 700 }}>{service.icon}</div>
       </div>
       <div style={{ padding: "18px 20px 24px" }}>
-        <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, color: "#0a3d37", margin: "0 0 12px", fontWeight: 700 }}>
-          {service.title}
-        </h3>
+        <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 16, color: "#0a3d37", margin: "0 0 12px", fontWeight: 700 }}>{service.title}</h3>
         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
           {service.items.map((it, j) => (
             <li key={j} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: "#444", lineHeight: 1.55 }}>
@@ -396,7 +235,6 @@ function ServiceCard({ service, i }) {
   );
 }
 
-// ─── SERVICES PAGE ─────────────────────────────────────────────────────────────
 function ServicesPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#f0faf8", paddingTop: 104 }}>
@@ -409,11 +247,9 @@ function ServicesPage() {
           </p>
         </motion.div>
       </div>
-
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "55px 5%", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: 24 }}>
         {SERVICES.map((s, i) => <ServiceCard key={s.id} service={s} i={i} />)}
       </div>
-
       <div style={{ textAlign: "center", padding: "0 5% 70px" }}>
         <motion.a href={CALL_LINK} whileHover={{ scale: 1.04 }}
           style={{ background: "linear-gradient(135deg,#0a5f55,#2eaa96)", color: "#fff", padding: "16px 38px", borderRadius: 32, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: "clamp(15px,2vw,17px)", boxShadow: "0 6px 24px rgba(10,95,85,0.35)", display: "inline-block" }}>
@@ -424,7 +260,6 @@ function ServicesPage() {
   );
 }
 
-// ─── ABOUT PAGE ─────────────────────────────────────────────────────────────────
 function AboutPage() {
   const features = [
     { icon: "🌿", title: "Eco-Friendly Solvents", desc: "We use safe, fabric-friendly cleaning agents that protect both your garments and the environment." },
@@ -442,17 +277,14 @@ function AboutPage() {
             Founded in 2001, Bombay Drycleaners has been a cornerstone of garment care in Hyderabad. What started as a small neighbourhood dry cleaning shop has grown into a trusted name for thousands of families.
           </p>
         </motion.div>
-        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
-          style={{ flex: "0 0 auto", display: "flex", justifyContent: "center" }}>
-          <div style={{ width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.25)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(10px)" }}>
-            <img src={LOGO_SVG} alt="Logo" style={{ width: 80, height: 80, objectFit: "contain", marginBottom: 8 }} />
-            <div style={{ fontFamily: "'Playfair Display',serif", color: "#fff", fontSize: 36, fontWeight: 700, lineHeight: 1 }}>23</div>
-            <div style={{ color: "rgba(255,255,255,0.65)", fontFamily: "'DM Sans',sans-serif", fontSize: 11, letterSpacing: 2 }}>YEARS OF</div>
-            <div style={{ color: "#fff", fontFamily: "'Playfair Display',serif", fontSize: 14, fontWeight: 600, letterSpacing: 1 }}>EXCELLENCE</div>
+        <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }} style={{ flex: "0 0 auto", display: "flex", justifyContent: "center" }}>
+          <div style={{ width: 230, height: 230, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "2px solid rgba(255,255,255,0.25)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(10px)" }}>
+            <img src={LOGO} alt="Logo" style={{ width: 86, height: 86, objectFit: "contain", marginBottom: 8, borderRadius: 12 }} />
+            <div style={{ fontFamily: "'Playfair Display',serif", color: "#7eecd9", fontSize: 11, letterSpacing: 2 }}>EST.</div>
+            <div style={{ fontFamily: "'Playfair Display',serif", color: "#fff", fontSize: 28, fontWeight: 700, lineHeight: 1 }}>2001</div>
           </div>
         </motion.div>
       </div>
-
       <div style={{ background: "#f0faf8", padding: "60px 5%" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <h2 style={{ textAlign: "center", fontFamily: "'Playfair Display',serif", fontSize: "clamp(1.5rem,3vw,2rem)", color: "#0a3d37", marginBottom: 44 }}>Why Choose Bombay Drycleaners?</h2>
@@ -468,11 +300,19 @@ function AboutPage() {
           </div>
         </div>
       </div>
+      <div style={{ background: "#fff", padding: "60px 5%", textAlign: "center" }}>
+        <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", border: "2px solid #e0f5f1", borderRadius: 24, padding: "44px 64px", background: "linear-gradient(135deg,#f0faf8,#e0f5f1)" }}>
+          <img src={LOGO} alt="Bombay Drycleaners Logo" style={{ width: 130, height: 130, objectFit: "contain", marginBottom: 16, borderRadius: 16 }} />
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 700, color: "#0a5f55", letterSpacing: 3 }}>BOMBAY</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 14, color: "#2eaa96", letterSpacing: 6, marginBottom: 10 }}>DRYCLEANERS</div>
+          <div style={{ color: "#999", fontFamily: "'DM Sans',sans-serif", fontSize: 12, letterSpacing: 2, marginBottom: 14 }}>SINCE 2001 · HYDERABAD</div>
+          <a href={CALL_LINK} style={{ color: "#0a5f55", fontFamily: "'DM Sans',sans-serif", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>📞 +91 {PHONE}</a>
+        </div>
+      </div>
     </div>
   );
 }
 
-// ─── REVIEWS PAGE ───────────────────────────────────────────────────────────────
 function ReviewsPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#f0faf8", paddingTop: 104 }}>
@@ -505,11 +345,16 @@ function ReviewsPage() {
           </motion.div>
         ))}
       </div>
+      <div style={{ textAlign: "center", padding: "0 5% 70px" }}>
+        <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer"
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#fff", border: "2px solid #2eaa96", color: "#0a5f55", padding: "12px 28px", borderRadius: 28, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 15, boxShadow: "0 4px 14px rgba(0,0,0,0.07)" }}>
+          <span style={{ fontSize: 20 }}>📍</span> View on Google Maps & Leave a Review
+        </a>
+      </div>
     </div>
   );
 }
 
-// ─── CONTACT PAGE ───────────────────────────────────────────────────────────────
 function ContactPage() {
   return (
     <div style={{ minHeight: "100vh", paddingTop: 104, background: "#f0faf8" }}>
@@ -520,73 +365,81 @@ function ContactPage() {
           <p style={{ color: "rgba(255,255,255,0.75)", fontFamily: "'DM Sans',sans-serif", fontSize: 17 }}>We're here to help — call, WhatsApp, or visit us directly.</p>
         </motion.div>
       </div>
-
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "55px 5%", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24 }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "55px 5% 30px", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 24 }}>
         {[
-          { icon: "📞", title: "Call Us", detail: `+91 ${PHONE}`, sub: "Mon–Sat: 8am – 8pm", bg: "#0a5f55", href: CALL_LINK, cta: "Call Now" },
+          { icon: "📞", title: "Call Us", detail: `+91 ${PHONE}`, sub: "Mon–Sat: 8:00 AM – 8:00 PM", bg: "#0a5f55", href: CALL_LINK, cta: "Call Now" },
           { icon: "💬", title: "WhatsApp", detail: `+91 ${PHONE}`, sub: "Chat with us anytime", bg: "#25D366", href: WHATSAPP_LINK, cta: "Open WhatsApp" },
-          { icon: "📍", title: "Find Us", detail: "Bombay Drycleaners", sub: "Hyderabad, Telangana", bg: "#e74c3c", href: MAPS_LINK, cta: "Open Maps" },
+          { icon: "📍", title: "Find Us on Maps", detail: "Bombay Drycleaners", sub: "Hyderabad, Telangana", bg: "#e74c3c", href: MAPS_LINK, cta: "Open Google Maps" },
         ].map((c, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
             whileHover={{ y: -6 }}
             style={{ background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
-            <div style={{ background: c.bg, padding: "26px 24px", textAlign: "center" }}>
-              <div style={{ fontSize: 42 }}>{c.icon}</div>
-            </div>
-            <div style={{ padding: "22px 22px 26px", textAlign: "center" }}>
+            <div style={{ background: c.bg, padding: "30px 24px", textAlign: "center" }}><div style={{ fontSize: 44 }}>{c.icon}</div></div>
+            <div style={{ padding: "24px 22px 28px", textAlign: "center" }}>
               <h3 style={{ fontFamily: "'Playfair Display',serif", color: "#0a3d37", fontSize: 19, margin: "0 0 8px" }}>{c.title}</h3>
               <p style={{ fontFamily: "'DM Sans',sans-serif", color: "#0a5f55", fontWeight: 700, fontSize: 16, margin: "0 0 4px" }}>{c.detail}</p>
-              <p style={{ fontFamily: "'DM Sans',sans-serif", color: "#888", fontSize: 13, margin: "0 0 18px" }}>{c.sub}</p>
-              <motion.a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                style={{ display: "inline-block", background: c.bg, color: "#fff", padding: "10px 24px", borderRadius: 24, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14 }}>
+              <p style={{ fontFamily: "'DM Sans',sans-serif", color: "#888", fontSize: 13, margin: "0 0 20px" }}>{c.sub}</p>
+              <motion.a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" whileHover={{ scale: 1.05 }}
+                style={{ display: "inline-block", background: c.bg, color: "#fff", padding: "11px 26px", borderRadius: 24, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14 }}>
                 {c.cta}
               </motion.a>
             </div>
           </motion.div>
         ))}
       </div>
-
-      <div style={{ maxWidth: 1100, margin: "0 auto 70px", padding: "0 5%" }}>
+      {/* Business info card — no map */}
+      <div style={{ maxWidth: 1000, margin: "0 auto 70px", padding: "0 5%" }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", height: 360 }}>
-          <iframe title="Bombay Drycleaners Location"
-            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=17.4813901,78.5442765&zoom=16"
-            width="100%" height="100%" style={{ border: 0, display: "block" }} allowFullScreen loading="lazy" />
+          style={{ background: "#fff", borderRadius: 20, padding: "40px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", display: "flex", flexWrap: "wrap", gap: 32, alignItems: "center" }}>
+          <div style={{ flex: "0 0 auto", display: "flex", justifyContent: "center" }}>
+            <img src={LOGO} alt="Bombay Drycleaners" style={{ width: 100, height: 100, objectFit: "contain", borderRadius: 16 }} />
+          </div>
+          <div style={{ flex: "1 1 240px" }}>
+            <h3 style={{ fontFamily: "'Playfair Display',serif", color: "#0a3d37", fontSize: 22, margin: "0 0 16px" }}>Bombay Drycleaners</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { label: "📍 Location", val: "Hyderabad, Telangana, India" },
+                { label: "🕐 Hours", val: "Monday – Saturday: 8:00 AM – 8:00 PM" },
+                { label: "📞 Phone", val: `+91 ${PHONE}` },
+                { label: "💬 WhatsApp", val: `+91 ${PHONE}` },
+                { label: "📅 Established", val: "2001" },
+              ].map(({ label, val }) => (
+                <div key={label} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <span style={{ fontFamily: "'DM Sans',sans-serif", color: "#666", fontSize: 13, minWidth: 110 }}>{label}</span>
+                  <span style={{ fontFamily: "'DM Sans',sans-serif", color: "#0a3d37", fontSize: 13, fontWeight: 600 }}>{val}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+            <a href={CALL_LINK} style={{ background: "linear-gradient(135deg,#0a5f55,#2eaa96)", color: "#fff", padding: "13px 28px", borderRadius: 28, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15, textAlign: "center", minWidth: 160 }}>📞 Call Now</a>
+            <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" style={{ background: "#25D366", color: "#fff", padding: "13px 28px", borderRadius: 28, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15, textAlign: "center", minWidth: 160 }}>💬 WhatsApp</a>
+            <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{ background: "#e74c3c", color: "#fff", padding: "13px 28px", borderRadius: 28, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15, textAlign: "center", minWidth: 160 }}>📍 Get Directions</a>
+          </div>
         </motion.div>
       </div>
     </div>
   );
 }
 
-// ─── HOME PAGE ─────────────────────────────────────────────────────────────────
 function HomePage({ setActivePage }) {
   return (
     <>
       <HeroSection setActivePage={setActivePage} />
-
       <section style={{ background: "#fff", padding: "70px 5%" }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            style={{ textAlign: "center", marginBottom: 44 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 48 }}>
             <div style={{ color: "#2eaa96", fontFamily: "'DM Sans',sans-serif", letterSpacing: 3, fontSize: 12, marginBottom: 10 }}>WHAT WE DO</div>
             <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(1.6rem,3vw,2.4rem)", color: "#0a3d37", margin: "0 0 14px" }}>Complete Garment & Textile Care</h2>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", color: "#666", fontSize: "clamp(14px,2vw,16px)", maxWidth: 500, margin: "0 auto" }}>
-              From your everyday wardrobe to precious heirlooms — every item gets expert attention.
+            <p style={{ fontFamily: "'DM Sans',sans-serif", color: "#666", fontSize: "clamp(14px,2vw,16px)", maxWidth: 520, margin: "0 auto" }}>
+              All 8 services — from your everyday wardrobe to precious heirlooms, expert care since 2001.
             </p>
           </motion.div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))", gap: 20 }}>
-            {SERVICES.slice(0, 6).map((s, i) => <ServiceCard key={s.id} service={s} i={i} />)}
-          </div>
-          <div style={{ textAlign: "center", marginTop: 36 }}>
-            <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActivePage("Services")}
-              style={{ background: "none", border: "2px solid #0a5f55", color: "#0a5f55", padding: "12px 30px", borderRadius: 30, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15 }}>
-              View All Services →
-            </motion.button>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20 }}>
+            {SERVICES.map((s, i) => <ServiceCard key={s.id} service={s} i={i} />)}
           </div>
         </div>
       </section>
-
       <section style={{ background: "linear-gradient(135deg,#052820,#0a5f55)", padding: "60px 5%" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 40, alignItems: "center" }}>
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} style={{ flex: "1 1 300px" }}>
@@ -600,9 +453,8 @@ function HomePage({ setActivePage }) {
               <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" style={{ background: "#25D366", color: "#fff", padding: "12px 22px", borderRadius: 26, textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontWeight: 600, fontSize: 14 }}>💬 WhatsApp</a>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-            style={{ flex: "1 1 240px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            {[["🌿","Eco-Friendly"],["⚡","Fast Turnaround"],["🔒","100% Safe"],["⭐","5-Star Rated"]].map(([ic,lb]) => (
+          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} style={{ flex: "1 1 240px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {[["🌿", "Eco-Friendly"], ["⚡", "Fast Turnaround"], ["🔒", "100% Safe"], ["⭐", "5-Star Rated"]].map(([ic, lb]) => (
               <div key={lb} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 14, padding: "18px 14px", textAlign: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>{ic}</div>
                 <div style={{ fontFamily: "'DM Sans',sans-serif", color: "#fff", fontWeight: 600, fontSize: 13 }}>{lb}</div>
@@ -611,7 +463,6 @@ function HomePage({ setActivePage }) {
           </motion.div>
         </div>
       </section>
-
       <section style={{ background: "#f0faf8", padding: "70px 5%" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: "center", marginBottom: 40 }}>
@@ -634,7 +485,7 @@ function HomePage({ setActivePage }) {
             ))}
           </div>
           <div style={{ textAlign: "center", marginTop: 32 }}>
-            <motion.button whileHover={{ scale: 1.05 }} onClick={() => {}}
+            <motion.button whileHover={{ scale: 1.05 }} onClick={() => setActivePage("Reviews")}
               style={{ background: "none", border: "2px solid #0a5f55", color: "#0a5f55", padding: "12px 30px", borderRadius: 30, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 15 }}>
               Read All Reviews →
             </motion.button>
@@ -645,7 +496,6 @@ function HomePage({ setActivePage }) {
   );
 }
 
-// ─── FOOTER ────────────────────────────────────────────────────────────────────
 function Footer({ setActivePage }) {
   return (
     <footer style={{ background: "#041f1c", color: "#fff", padding: "55px 5% 28px" }}>
@@ -653,26 +503,23 @@ function Footer({ setActivePage }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 36, paddingBottom: 36, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <img src={LOGO_SVG} alt="Logo" style={{ width: 46, height: 46, objectFit: "contain", borderRadius: 8 }} />
+              <img src={LOGO} alt="Logo" style={{ width: 46, height: 46, objectFit: "contain", borderRadius: 8 }} />
               <div>
                 <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 700, fontSize: 15, color: "#7eecd9" }}>BOMBAY</div>
                 <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 8, color: "#2eaa96", letterSpacing: 3 }}>DRYCLEANERS</div>
               </div>
             </div>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.8 }}>
-              Premium garment care trusted by Hyderabad families since 2001.
-            </p>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", color: "rgba(255,255,255,0.5)", fontSize: 13, lineHeight: 1.8 }}>Premium garment care trusted by Hyderabad families since 2001.</p>
           </div>
           <div>
             <h4 style={{ fontFamily: "'DM Sans',sans-serif", color: "#7eecd9", fontSize: 11, letterSpacing: 2, marginBottom: 14 }}>QUICK LINKS</h4>
-            {["Home","Services","About","Reviews","Contact"].map((l) => (
-              <button key={l} onClick={() => setActivePage(l)}
-                style={{ display: "block", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans',sans-serif", fontSize: 14, padding: "4px 0", textAlign: "left" }}>{l}</button>
+            {["Home", "Services", "About", "Reviews", "Contact"].map((l) => (
+              <button key={l} onClick={() => setActivePage(l)} style={{ display: "block", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans',sans-serif", fontSize: 14, padding: "4px 0", textAlign: "left" }}>{l}</button>
             ))}
           </div>
           <div>
             <h4 style={{ fontFamily: "'DM Sans',sans-serif", color: "#7eecd9", fontSize: 11, letterSpacing: 2, marginBottom: 14 }}>SERVICES</h4>
-            {["Saree & Silk Care","Bridal Lehengas","Sherwanis & Suits","Curtains & Drapes","Carpet & Sofa","All Other Items"].map((s) => (
+            {["Saree & Silk Care", "Bridal Lehengas", "Sherwanis & Suits", "Curtains & Drapes", "Carpet & Rug", "Shoes & Bags"].map((s) => (
               <div key={s} style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans',sans-serif", fontSize: 13, padding: "4px 0" }}>{s}</div>
             ))}
           </div>
@@ -696,21 +543,38 @@ function Footer({ setActivePage }) {
   );
 }
 
-// ─── APP ───────────────────────────────────────────────────────────────────────
+function FloatingButtons() {
+  return (
+    <div style={{ position: "fixed", bottom: 28, right: 22, zIndex: 1000, display: "flex", flexDirection: "column", gap: 14 }}>
+      <motion.a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.95 }}
+        style={{ width: 56, height: 56, borderRadius: "50%", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(37,211,102,0.5)", textDecoration: "none" }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </motion.a>
+      <motion.a href={CALL_LINK} whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.95 }}
+        style={{ width: 56, height: 56, borderRadius: "50%", background: "#0a5f55", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(10,95,85,0.5)", textDecoration: "none" }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      </motion.a>
+    </div>
+  );
+}
+
 export default function App() {
   const [activePage, setActivePage] = useState("Home");
   const handleSetPage = (page) => { setActivePage(page); window.scrollTo({ top: 0, behavior: "smooth" }); };
-
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap";
     document.head.appendChild(link);
+    // Set favicon to real logo
+    let fav = document.querySelector("link[rel='icon']");
+    if (!fav) { fav = document.createElement("link"); fav.rel = "icon"; document.head.appendChild(fav); }
+    fav.type = "image/png";
+    fav.href = LOGO;
     document.body.style.margin = "0";
     document.body.style.padding = "0";
     document.body.style.overflowX = "hidden";
   }, []);
-
   const renderPage = () => {
     switch (activePage) {
       case "Home": return <HomePage setActivePage={handleSetPage} />;
@@ -721,7 +585,6 @@ export default function App() {
       default: return <HomePage setActivePage={handleSetPage} />;
     }
   };
-
   return (
     <div style={{ fontFamily: "'DM Sans',sans-serif", background: "#f0faf8" }}>
       <TopBar />
