@@ -864,7 +864,10 @@ function Footer({ setActivePage }) {
           </div>
         </div>
         <div style={{ paddingTop:20, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:10 }}>
-          <div style={{ fontFamily:"'DM Sans',sans-serif", color:"rgba(255,255,255,0.28)", fontSize:11 }}>© 2024 Bombay Drycleaners. All rights reserved. Since 2001.</div>
+          <div style={{ fontFamily:"'DM Sans',sans-serif", color:"rgba(255,255,255,0.28)", fontSize:11 }}>
+          © 2026 Bombay Drycleaners. All rights reserved. Since 2001. Created by 
+            <a href="https://localrizz.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color:"#fff", marginLeft:4, textDecoration:"none" }}>LocalRizz</a>
+        </div>
           <div style={{ display:"flex", gap:8 }}>
             <a href={CALL_LINK} style={{ background:"#0a5f55", color:"#fff", padding:"5px 14px", borderRadius:18, textDecoration:"none", fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:600 }}>📞 Call</a>
             <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" style={{ background:"#25D366", color:"#fff", padding:"5px 14px", borderRadius:18, textDecoration:"none", fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:600 }}>💬 WhatsApp</a>
