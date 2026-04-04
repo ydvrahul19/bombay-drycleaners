@@ -791,7 +791,7 @@ function Footer({ setActivePage }) {
             <a href={CALL_LINK} style={{ display:"block", color:"rgba(255,255,255,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:14, textDecoration:"none", padding:"4px 0", transition:"color 0.2s" }} onMouseOver={e=>e.target.style.color="#fff"} onMouseOut={e=>e.target.style.color="rgba(255,255,255,0.6)"}>📞 +91 {PHONE}</a>
             <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" style={{ display:"block", color:"rgba(255,255,255,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:14, textDecoration:"none", padding:"4px 0", transition:"color 0.2s" }} onMouseOver={e=>e.target.style.color="#fff"} onMouseOut={e=>e.target.style.color="rgba(255,255,255,0.6)"}>💬 WhatsApp Us</a>
             <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" style={{ display:"block", color:"rgba(255,255,255,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:14, textDecoration:"none", padding:"4px 0", transition:"color 0.2s" }} onMouseOver={e=>e.target.style.color="#fff"} onMouseOut={e=>e.target.style.color="rgba(255,255,255,0.6)"}>📍 Get Directions</a>
-            <div style={{ color:"rgba(255,255,255,0.4)", fontFamily:"'DM Sans',sans-serif", fontSize:12, marginTop:10 }}>Mon–Sat: 8am – 8pm</div>
+            <div style={{ color:"rgba(255,255,255,0.4)", fontFamily:"'DM Sans',sans-serif", fontSize:12, marginTop:10 }}>Mon–Sat: 9am – 9pm</div>
           </div>
         </div>
         <div style={{ paddingTop:24, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:16 }}>
